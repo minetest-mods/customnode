@@ -1,5 +1,4 @@
-# minetest-customnode
-A framework mod for easy nodes definitions
+# customnode - A minetest mod for easy nodes definitions in other mods
 
 This mod provides the function customnode.get_nodelist_by_textures() that can be used in other mods to get additional mods in easy. 
 The modder can focus on textures.
