@@ -70,6 +70,6 @@ modname_[addprefix_][variant_][name_][tiletype].ext
   - variant - determinate some nodes parameter: 
     - Supported: brick, cobblestone, dirt, grass, ice, iron, sandstone, stone, item (=will be skipped)
   - tiletype - defines the tile position
-    - Supported: top, bottom, down, right, left, back, front, side, normal
+    - Supported: top, bottom, down, right, left, back, inner, front, side, normal
   - name - additional string makes the nodename unique. Note: if tieltype or variant is not valid, you find it as a part of the name
   - ext - File extendion as supported by minetest

@@ -62,6 +62,7 @@ function customnode.get_nodelist_by_textures(prefix, generator_mapping)
 		right = "right",
 		left = "left",
 		back = "back",
+		inner = "back",
 		front = "front",
 		side = "all",
 		normal = "all",
