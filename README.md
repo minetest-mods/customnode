@@ -28,7 +28,7 @@ customnode.add_nodes_from_textures({
 
 5. create textures folder
 
-6. create your textures (or download them from internet like http://resourcepack.net/super-mario-bros-resource-pack/)
+6. create your textures (or download them from internet like http://resourcepack.net/super-mario-bros-resource-pack)
 
 7. store the compatible textures to the texture folder according the filename convention
 ```
