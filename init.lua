@@ -28,7 +28,6 @@ function customnode.add_nodes_from_textures(conf)
 		if nodedef then
 			minetest.register_node(nodedef.name, nodedef)
 			if minetest.global_exists("stairs") and conf.add_stairs_slabs ~= false then
-				print(nodedef.name, generator.variant)
 				if conf.add_stairs_slabs == true or (type(conf.add_stairs_slabs) == "string" and string.find(conf.add_stairs_slabs, generator.variant)) then
 					stairs.register_stair_and_slab(
 							generator.modname.."_"..generator:get_name(),
@@ -101,80 +100,73 @@ function customnode.get_nodelist_by_textures(prefix, generator_mapping)
 	end
 
 	for _, v in ipairs(files) do
-		-- split filename by "_" 
-		local nameparts = {}
-		for part in v:gmatch("([^_]+)") do
-			table.insert(nameparts, part)
-		end
+		local index = 0
+		local skip = false
 
-		local name_idx_start = def_name_idx_start
-		local name_idx_end = #nameparts
-		-- check the nameparts if modname(1) and prefix(2) matches
-		if name_idx_end >= name_idx_start and
-				(nameparts[1] == modname and (not prefix or nameparts[2] == prefix)) then
+		local basename
+		local variant
+		local generator
+		local tiletype
 
-			-- remove file ending from last namepart 
-			nameparts[name_idx_end] = nameparts[name_idx_end]:gsub('\....$','') 
+		for part in v:gmatch("([^_]+)") do -- split filename by "_"
+			index = index + 1
 
-			-- get generator
-			local generator
-			local variant_name
-			if name_idx_end >= name_idx_start then
-				local generator_type = generator_mapping[nameparts[name_idx_start]]
-				if generator_type then
-					generator = customnode._templates[generator_type]
-					variant_name = nameparts[name_idx_start]
-					name_idx_start = name_idx_start +1
+			-- remove file ending in last part
+			part = part:gsub('%....$','')
+
+			-- check modname namespace
+			if index == 1 then
+				if part ~= modname then
+					skip = true
+					break
+				end
+
+			-- check additional namespace
+			elseif index == 2 and prefix then
+				if part ~= prefix then
+					skip = true
+					break
+				end
+
+			-- process tile mapping
+			elseif tile_mapping[part] then
+				tiletype = tile_mapping[part]
+
+			else
+				if not generator and generator_mapping[part] then
+					variant = part
+					generator = customnode._templates[generator_mapping[part]]
+				end
+				if not basename then
+					basename = part
 				else
-					local generator_type = generator_mapping[nameparts[name_idx_end]]
-					if generator_type then
-						generator = customnode._templates[generator_type]
-						variant_name = nameparts[name_idx_end]
-						name_idx_end = name_idx_end -1
-					end
+					basename = basename.."_"..part
 				end
 			end
+		end
+
+		if not skip then
+			-- default tiletype
+			if not tiletype then
+				tiletype = "all"
+			end
+
+			-- default generator
 			if not generator then
-				variant_name = "default"
+				variant = "default"
 				generator = customnode._templates["default"]
 			end
 
-			-- get tiletype
-			local tiletype
-			if name_idx_end >= name_idx_start then
-				tiletype = tile_mapping[nameparts[name_idx_end]]
-			end
-			if not tiletype then
-				tiletype = "all"
-			else
-				name_idx_end = name_idx_end -1 
-			end
-
-			-- get the basename and the unique entry name
-			local basename
-			local entryname
-			if name_idx_start <= name_idx_end then
-				basename = nameparts[name_idx_start]
-				if name_idx_start < name_idx_end then
-					for i = name_idx_start+1, name_idx_end do
-						basename = basename.."_"..nameparts[i]
-					end
-				end
-				entryname = basename.."_"..variant_name
-			else
-				entryname = variant_name
-			end
-
 			-- Add information to the customnode
-			if not customnode_list[entryname] then
-				customnode_list[entryname] = generator:new({
+			if not customnode_list[basename] then
+				customnode_list[basename] = generator:new({
 						modname = modname,
 						prefix = prefix,
 						basename = basename,
-						variant = variant_name,
+						variant = variant,
 				})
 			end
-			customnode_list[entryname].tiles[tiletype] = v
+			customnode_list[basename].tiles[tiletype] = v
 		end
 	end
 	return customnode_list
@@ -215,17 +207,9 @@ customnode.register_generator("default", {
 	-- Get node name
 	get_name = function(self)
 		if not self.basename then
-			if self.variant == "default" then
-				return self.modname
-			else
-				return self.variant
-			end
+			return self.modname
 		else
-			if self.variant == "default" then
-				return self.basename
-			else
-				return self.variant.."_"..self.basename
-			end
+			return self.basename
 		end
 	end,
 
@@ -234,9 +218,6 @@ customnode.register_generator("default", {
 		local descr = self.conf.descr_prefix or self.modname
 		if self.basename then
 			descr = descr.." "..self.basename:gsub("_"," ")
-		end
-		if self.variant ~= "default" then
-			descr = descr.." "..self.variant
 		end
 		return descr
 	end,
