@@ -28,6 +28,7 @@ function customnode.add_nodes_from_textures(conf)
 		if nodedef then
 			minetest.register_node(nodedef.name, nodedef)
 			if minetest.global_exists("stairs") and conf.add_stairs_slabs ~= false then
+				print(nodedef.name, generator.variant)
 				if conf.add_stairs_slabs == true or (type(conf.add_stairs_slabs) == "string" and string.find(conf.add_stairs_slabs, generator.variant)) then
 					stairs.register_stair_and_slab(
 							generator.modname.."_"..generator:get_name(),
@@ -124,6 +125,13 @@ function customnode.get_nodelist_by_textures(prefix, generator_mapping)
 					generator = customnode._templates[generator_type]
 					variant_name = nameparts[name_idx_start]
 					name_idx_start = name_idx_start +1
+				else
+					local generator_type = generator_mapping[nameparts[name_idx_end]]
+					if generator_type then
+						generator = customnode._templates[generator_type]
+						variant_name = nameparts[name_idx_end]
+						name_idx_end = name_idx_end -1
+					end
 				end
 			end
 			if not generator then
