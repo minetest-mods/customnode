@@ -14,13 +14,32 @@ function customnode.add_nodes_from_textures(conf)
 	conf can contains the next attributes:
 	conf.descr_prefix - Additional prefix to the node description
 	conf.check_prefix - Enhance the prefix check to modname_addprefix_ instead of default modname_
+	conf.add_stairs_slabs - generate stairs and slabs from stairs mod in addition to the node
 
 ]]
+
+	if not conf.add_stairs_slabs then
+		conf.add_stairs_slabs = "brick,cobblestone,ice,sandstone,stone"
+	end
+
 	local customnode_list = customnode.get_nodelist_by_textures(conf.check_prefix)
 	for name, generator in pairs(customnode_list) do
 		local nodedef = generator:get_nodedef(conf)
 		if nodedef then
 			minetest.register_node(nodedef.name, nodedef)
+			if minetest.global_exists("stairs") and conf.add_stairs_slabs ~= false then
+				if conf.add_stairs_slabs == true or (type(conf.add_stairs_slabs) == "string" and string.find(conf.add_stairs_slabs, generator.variant)) then
+					stairs.register_stair_and_slab(
+							generator.modname.."_"..generator:get_name(),
+							nodedef.name,
+							table.copy(nodedef.groups),
+							table.copy(nodedef.tiles),
+							nodedef.description.." Stair",
+							nodedef.description.." Stone Slab",
+							table.copy(nodedef.sounds)
+					)
+				end
+			end
 		end
 	end
 end
@@ -169,7 +188,7 @@ customnode.register_generator("default", {
 	get_nodedef = function(self, conf)
 		self.conf = conf
 		local nodedef = self:get_template()
-		nodedef.name = self:get_name()
+		nodedef.name = self.modname..":"..self:get_name()
 		nodedef.description = self:get_description()
 		nodedef.tiles = self:get_tiles()
 		nodedef.sounds = self:get_sounds()
@@ -189,15 +208,15 @@ customnode.register_generator("default", {
 	get_name = function(self)
 		if not self.basename then
 			if self.variant == "default" then
-				return self.modname..":"..self.modname
+				return self.modname
 			else
-				return self.modname..":"..self.variant
+				return self.variant
 			end
 		else
 			if self.variant == "default" then
-				return self.modname..":"..self.basename
+				return self.basename
 			else
-				return self.modname..":"..self.variant.."_"..self.basename
+				return self.variant.."_"..self.basename
 			end
 		end
 	end,

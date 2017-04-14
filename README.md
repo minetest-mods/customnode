@@ -60,6 +60,7 @@ newsupermario_ice_packed.png         newsupermario_nether_brick.png             
 ## customnode.add_nodes_from_textures(def)
 def.descr_prefix - prefix added to all generated node descriptions. If not defined the modname will be used
 def.check_prefix - Additional prefix if not all textures should be processed
+def.add_stairs_slabs - Adds stairs and slabs for nodes with specific variants. Default value is "brick,cobblestone,ice,iron,sandstone,stone". false means disable, true means for all variants
 
 
 ## Textures name convention
