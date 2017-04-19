@@ -30,7 +30,8 @@ customnode.add_nodes_from_textures({
 
 6. create your textures (or download them from internet like http://resourcepack.net/super-mario-bros-resource-pack)
 
-7. store the compatible textures to the texture folder according the filename convention
+7. store the compatible textures to the texture folder according the filename convention. Renaming can be done by any bulk-rename tool.
+
 ```
 $ ls textures/
 newsupermario_brick.png              newsupermario_ice.png                        newsupermario_netherrack.png                 newsupermario_sandstone_smooth_top.png
@@ -58,9 +59,9 @@ newsupermario_ice_packed.png         newsupermario_nether_brick.png             
 # API
 
 ## customnode.add_nodes_from_textures(def)
-def.descr_prefix - prefix added to all generated node descriptions. If not defined the modname will be used
-def.check_prefix - Additional prefix if not all textures should be processed
-def.add_stairs_slabs - Adds stairs and slabs for nodes with specific variants. Default value is "brick,cobblestone,ice,iron,sandstone,stone". false means disable, true means for all variants
+  - def.descr_prefix - prefix added to all generated node descriptions. If not defined the modname will be used
+  - def.check_prefix - Additional prefix if not all textures should be processed
+  - def.add_stairs_slabs - Adds stairs and slabs for nodes with specific variants. Default value is "brick,cobblestone,ice,iron,sandstone,stone". false means disable, true means for all variants
 
 
 ## Textures name convention
