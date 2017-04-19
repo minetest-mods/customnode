@@ -5,17 +5,15 @@ customnode._templates = {}
 -- API Call to create the nodes reading textures folder
 ----------------------------------------------------
 function customnode.add_nodes_from_textures(conf)
-
 --[[
 	the texture names needs to follow the next convention:
 	 modname_[prefix_][generator_][name_][tiletype].xyz
-	[] is optional
+	[] means optional
 
 	conf can contains the next attributes:
 	conf.descr_prefix - Additional prefix to the node description
 	conf.check_prefix - Enhance the prefix check to modname_addprefix_ instead of default modname_
 	conf.add_stairs_slabs - generate stairs and slabs from stairs mod in addition to the node
-
 ]]
 
 	if not conf.add_stairs_slabs then
@@ -30,13 +28,13 @@ function customnode.add_nodes_from_textures(conf)
 			if minetest.global_exists("stairs") and conf.add_stairs_slabs ~= false then
 				if conf.add_stairs_slabs == true or (type(conf.add_stairs_slabs) == "string" and string.find(conf.add_stairs_slabs, generator.variant)) then
 					stairs.register_stair_and_slab(
-							generator.modname.."_"..generator:get_name(),
-							nodedef.name,
-							table.copy(nodedef.groups),
-							table.copy(nodedef.tiles),
-							nodedef.description.." Stair",
-							nodedef.description.." Stone Slab",
-							table.copy(nodedef.sounds)
+						generator.modname.."_"..generator:get_name(),
+						nodedef.name,
+						table.copy(nodedef.groups),
+						table.copy(nodedef.tiles),
+						nodedef.description.." Stair",
+						nodedef.description.." Stone Slab",
+						table.copy(nodedef.sounds)
 					)
 				end
 			end
@@ -54,7 +52,6 @@ function customnode.register_generator(name, def)
 	end
 	def.__index = customnode._templates.default
 end
-
 
 ----------------------------------------------------
 -- read textures folder and get node names
@@ -93,12 +90,7 @@ function customnode.get_nodelist_by_textures(prefix, generator_mapping)
 
 	local customnode_list = {}
 
-	-- syntax is modename_[prefix_]_name_[type_][tiletype].xyz
-	local def_name_idx_start = 2
-	if prefix then 
-		def_name_idx_start = 3
-	end
-
+	-- syntax is modename_[prefix_][name_][type_][tiletype].xyz
 	for _, v in ipairs(files) do
 		local index = 0
 		local skip = false
@@ -131,7 +123,6 @@ function customnode.get_nodelist_by_textures(prefix, generator_mapping)
 			-- process tile mapping
 			elseif tile_mapping[part] then
 				tiletype = tile_mapping[part]
-
 			else
 				if not generator and generator_mapping[part] then
 					variant = part
@@ -284,7 +275,6 @@ customnode.register_generator("default", {
 				--	groups = {choppy = 3, oddly_breakable_by_hand = 2},
 	end,
 })
-
 
 ----------------------------------------------------
 -- Generator that does nothing
