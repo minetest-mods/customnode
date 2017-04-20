@@ -61,7 +61,6 @@ newsupermario_ice_packed.png         newsupermario_nether_brick.png             
 ## customnode.add_nodes_from_textures(def)
   - def.descr_prefix - prefix added to all generated node descriptions. If not defined the modname will be used
   - def.check_prefix - Additional prefix if not all textures should be processed
-  - def.add_stairs_slabs - Adds stairs and slabs for nodes with specific variants. Default value is "brick,cobblestone,ice,iron,sandstone,stone". false means disable, true means for all variants
 
 
 ## Textures name convention
@@ -75,3 +74,62 @@ modname_[addprefix_][variant_][name_][tiletype].ext
     - Supported: top, bottom, down, right, left, back, inner, front, side, normal
   - name - additional string makes the nodename unique. Note: if tieltype or variant is not valid, you find it as a part of the name
   - ext - File extendion as supported by minetest
+
+
+## Advanced API
+customnode.register_variant(name, definition) - register a new nodes variant
+  - name - needs to be namespaced as "modname:pattern". The "pattern" will be checked against filename
+  - definition - if a string is provided the variant will be just linked against existing variant
+     - if a table is provided the table will be [b]merged[b] to the default template for register_node(). All attributes will be passed to register_node, except:
+        - tasks: A table of tasks should be executed for variant. Note the default definition contains already "default" taks that creates the node
+        - skip: a bolean value. If it is true, no nodes will be generated for this variant
+
+customnode.register_task(name, function) - register a new task, that can be used in customnode.register_variant. THe function will be called for each definition
+   - function(nodedef, generator) - nodedef is data prepared for register_node(), generator is the object with used additional internal data
+
+
+## Implemented tasks
+  - default - create the node
+  - stairs_slabs - generate stairs and slabs using stairs.register_stair_and_slab()
+
+## Implemented variants - for the definition look to the implementation at the end of init.lua
+  - customnode:default - the default one. Is used as template for all other variants. Is used for all nodes without valid variant
+  - customnode:item - skip is set
+  - customnode:dirt
+  - customnode:grass
+  - customnode:ice - with stairs_slabs
+  - customnode:stone - with stairs_slabs
+  - customnode:brick - copy of stone
+  - customnode:cobble - copy of stone
+  - customnode:stonebrick - copy of stone
+  - customnode:cobblestone - copy of stone
+  - customnode:sandstone - with stairs_slabs
+  - customnode:sand
+  - customnode:gravel
+  - customnode:snow
+  - customnode:tree
+  - customnode:wood - with stairs_slabs
+  - customnode:metal - with stairs_slabs
+  - customnode:steel - copy of metal
+  - customnode:glass
+
+## Extended example
+```
+customnode.register_task("recipe", function(nodedef, generator)
+	minetest.register_craft({
+		output = nodedef.name,
+		recipe = {
+			{"default:wood", ingredients[nodedef.name], "default:wood"},
+		}
+	})
+end)
+
+customnode.register_variant("mymod:wood", {
+	groups = {choppy = 2, wood = 1}
+	tasks = {"stairs_slabs", "recipe"},
+})
+
+customnode.add_nodes_from_textures({
+	descr_prefix = "My crazy blocks",
+})
+```
