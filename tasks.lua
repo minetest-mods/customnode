@@ -1,14 +1,14 @@
 ----------------------------------------------------
 -- Default base task
 ----------------------------------------------------
-customnode.register_task("default", function(nodedef)
+customnode.register_task("customnode:node", function(nodedef)
 	minetest.register_node(nodedef.name, nodedef)
 end)
 
 ----------------------------------------------------
 -- task for stairs and slabs using stairs mod
 ----------------------------------------------------
-customnode.register_task("stairs_slabs", function(nodedef, generator)
+customnode.register_task("stairs:stairs_slabs", function(nodedef, generator)
 	if minetest.global_exists("stairs") then
 		stairs.register_stair_and_slab(
 			generator.modname.."_"..generator:get_name(),

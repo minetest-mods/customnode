@@ -5,7 +5,7 @@ customnode.register_variant("customnode:default", {
 	is_ground_content = false,
 	groups = {cracky = 3, oddly_breakable_by_hand = 2},
 	sounds = default.node_sound_stone_defaults(),
-	tasks = {"default"},
+	tasks = {"customnode:node"},
 })
 
 ----------------------------------------------------
@@ -30,12 +30,12 @@ customnode.register_variant("customnode:grass", {
 
 customnode.register_variant("customnode:ice", {
 	sounds = default.node_sound_glass_defaults(),
-	tasks = {"stairs_slabs"},
+	tasks = {"stairs:stairs_slabs"},
 })
 
 customnode.register_variant("customnode:stone", {
 	groups = {cracky = 3, stone = 1, oddly_breakable_by_hand = 2},
-	tasks = {"stairs_slabs"},
+	tasks = {"stairs:stairs_slabs"},
 })
 
 customnode.register_variant("customnode:brick", "customnode:stone")
@@ -45,7 +45,7 @@ customnode.register_variant("customnode:cobblestone", "customnode:stone")
 
 customnode.register_variant("customnode:sandstone", {
 	groups = {crumbly = 1, cracky = 3, oddly_breakable_by_hand = 2},
-	tasks = {"stairs_slabs"},
+	tasks = {"stairs:stairs_slabs"},
 })
 
 customnode.register_variant("customnode:sand", {
@@ -75,13 +75,13 @@ customnode.register_variant("customnode:wood", {
 	place_param2 = 0,
 	groups = {choppy = 2, oddly_breakable_by_hand = 2, flammable = 2, wood = 1},
 	sounds = default.node_sound_wood_defaults(),
-	tasks = {"stairs_slabs"},
+	tasks = {"stairs:stairs_slabs"},
 })
 
 customnode.register_variant("customnode:metal", {
 	groups = {cracky = 1},
 	sounds = default.node_sound_metal_defaults(),
-	tasks = {"stairs_slabs"},
+	tasks = {"stairs:stairs_slabs"},
 })
 customnode.register_variant("customnode:steel", "customnode:metal")
 
