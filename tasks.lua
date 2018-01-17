@@ -21,3 +21,10 @@ customnode.register_task("stairs:stairs_slabs", function(nodedef, generator)
 		)
 	end
 end)
+
+
+customnode.register_task("carpets:carpet", function(nodedef, generator)
+	if minetest.global_exists("carpets") then
+		carpets.register(nodedef.name)
+	end
+end)
