@@ -52,6 +52,19 @@ function customnode.register_variant(name, template)
 end
 
 ----------------------------------------------------
+-- API Call - Get variant object
+----------------------------------------------------
+function customnode.get_variant(name)
+print("get variant", name)
+	if name:match(":") then
+		return customnode._variants[name]
+	else
+		local modname = minetest.get_current_modname()
+		return customnode._variants[modname..":"..name] or customnode._variants["customnode:"..name]
+	end
+end
+
+----------------------------------------------------
 -- API Call - register task
 ----------------------------------------------------
 function customnode.register_task(name, task)
@@ -118,12 +131,11 @@ function customnode.get_nodelist_by_textures(conf)
 			elseif tile_mapping[part] then
 				tiletype = tile_mapping[part]
 			else
-				if not variant and customnode._variants[modname..":"..part] then
-					variant = customnode._variants[modname..":"..part]
-					variant_shortname = part
-				elseif not variant and customnode._variants["customnode:"..part] then
-					variant = customnode._variants["customnode:"..part]
-					variant_shortname = part
+				if not variant then
+					variant = customnode.get_variant(part)
+					if variant then
+						variant_shortname = part
+					end
 				end
 				if not basename then
 					basename = part
@@ -133,7 +145,13 @@ function customnode.get_nodelist_by_textures(conf)
 			end
 		end
 
-		if variant and variant.skip then
+		-- default generator
+		if not variant then
+			variant = customnode.get_variant("default")
+			variant_shortname = "default"
+		end
+
+		if variant.skip then
 			skip = variant.skip
 		end
 
@@ -145,12 +163,6 @@ function customnode.get_nodelist_by_textures(conf)
 
 			if not basename then
 				basename = modname
-			end
-
-			-- default generator
-			if not variant then
-				variant = customnode._variants["customnode:default"]
-				variant_shortname = "default"
 			end
 
 			-- Add information to the customnode
