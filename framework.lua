@@ -6,6 +6,8 @@ function customnode.register_variant(name, template)
 
 	if name:sub(1,1) == ":" then
 		name = name:sub(1)
+	elseif not name:match(":") then
+		name = modname..':'..name
 	elseif name:sub(1,modname:len()+1) ~= modname..":" then
 		error(name.." does not match naming conventions")
 	end
@@ -52,7 +54,7 @@ function customnode.register_variant(name, template)
 end
 
 ----------------------------------------------------
--- API Call - Get variant object
+-- API internall Call - Get variant object
 ----------------------------------------------------
 function customnode.get_variant(name)
 	if name:match(":") then
@@ -74,7 +76,7 @@ function customnode.register_task(name, task)
 end
 
 ----------------------------------------------------
--- read textures folder and get a generator list
+-- API internall Call: read textures folder and get a generator list
 ----------------------------------------------------
 function customnode.get_nodelist_by_textures(conf)
 	local tile_mapping = {
@@ -187,8 +189,137 @@ function customnode.add_nodes_from_textures(conf)
 	for name, generator in pairs(generator_list) do
 		local nodedef = generator:get_nodedef()
 		if nodedef then
-			for _, task in ipairs(generator.variant.tasks) do
+			for _, task in pairs(generator.variant.tasks) do
 				task(nodedef)
+			end
+		end
+	end
+end
+
+----------------------------------------------------
+-- API internal Call: Check if a nodedef can be used for shapes
+----------------------------------------------------
+function customnode.check_nodedef(def, depmod)
+	-- disable shapes from loaded modules but not defined in dependency
+	if depmod and not depmod:check_depend_by_itemname(def.name) then
+		return false
+	end
+
+	-- disable shapes for blocks without description
+	if def.description == nil or def.description == "" then
+		return false
+	end
+
+	-- no 3rd hand shapes
+	local ignore_groups = {
+		not_in_creative_inventory = true,
+		carpet = true,
+		door = true,
+		fence = true,
+		stair = true,
+		slab = true,
+		wall = true,
+		micro = true,
+		panel = true,
+		slope = true,
+	}
+	for k,v in pairs(def.groups) do
+		if ignore_groups[k] then
+			return false
+		end
+	end
+
+	-- not supported node types for shapes
+	local ignore_drawtype = {
+		liquid = true,
+		firelike = true,
+		airlike = true,
+		plantlike = true,
+		nodebox = true,
+		raillike = true,
+		mesh = true,
+	}
+	if ignore_drawtype[def.drawtype] then
+		return false
+	end
+
+	-- no shapes for signs, rail, ladder
+	if def.paramtype2 == "wallmounted" then
+		return false
+	end
+
+	-- all checks passed
+	return true
+end
+
+
+local variant_by_group1 = {
+	stone = 'stone',
+	sand = 'sand',
+	tree = 'tree',
+	wood = 'wood',
+	spreading_dirt_type = 'grass',
+}
+
+-- Second try, no matches in group1
+local variant_by_group2 = {
+	soil = 'dirt',  -- after spreading_dirt_type and sand
+	snowy = 'snow', -- after spreading_dirt_type
+	falling_node = 'gravel', -- after sand
+}
+
+-- third try, no matches in group1 and group2
+local variant_by_group3 = {
+	cools_lava = 'ice', -- after snowy
+}
+
+---------------------------------------------------
+-- API internal Call: classify node definition to variant
+----------------------------------------------------
+function customnode.detect_variant(def)
+	for group, _ in pairs(def.groups) do
+		local by_group = variant_by_group1[group]
+		if by_group then
+			return by_group
+		end
+	end
+
+	for group, _ in pairs(def.groups) do
+		local by_group = variant_by_group2[group]
+		if by_group then
+			return by_group
+		end
+	end
+
+	for group, _ in pairs(def.groups) do
+		local by_group = variant_by_group3[group]
+		if by_group then
+			return by_group
+		end
+	end
+
+	if def.sunlight_propagates then
+		return 'glass'
+	end
+end
+
+---------------------------------------------------
+-- API Call: Apply variant to all nodes in depending mods
+----------------------------------------------------
+function customnode.apply_variants_to_depnodes(variant_name)
+	local depmod = customnode.modutils.get_depend_checker(minetest.get_current_modname())
+	for name, def in pairs(minetest.registered_nodes) do
+		if customnode.check_nodedef(def, depmod) then
+			local variant
+			if variant_name then
+				variant = customnode.get_variant(variant_name)
+			else
+				variant = customnode.get_variant(customnode.detect_variant(def) or 'default')
+			end
+			for taskname, task in pairs(variant.tasks) do
+				if taskname ~= "customnode:node" then
+					task(def)
+				end
 			end
 		end
 	end

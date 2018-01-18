@@ -1,11 +1,12 @@
 # customnode - A minetest mod for easy nodes definitions in other mods
 
-This mod provides the function customnode.get_nodelist_by_textures() that can be used in other mods to get additional mods in easy. 
-The modder can focus on textures.
+## Decorative nodes by reading textures folder
+This mod provides the function customnode.get_nodelist_by_textures() that can be used in other mods to get additional mods in easy.
+The modder can focus on textures. The framework create the node definitions and some shaped nodes in addition matching node variant.
 
 The best explanation is an example: 
 
-## How to create a mod called "newsupermario"
+### How to create a mod called "newsupermario"
 
 1. create the mod folder newsupermario/
 
@@ -55,81 +56,46 @@ newsupermario_ice_packed.png         newsupermario_nether_brick.png             
 ```
 8. add the mod to a creative game and try out the new blocks
 
+## Additional shapes for nodes in already existing mods
+The function customnode.apply_variants_to_depnodes() called from other mod analyzes the depends.txt file, analyzes by the mods installed nodes for shapeable, 
+classify and apply the shape-tasks to the node.
 
-# API
+The best explanation is again an example:
 
-## customnode.add_nodes_from_textures(def)
-  - def.descr_prefix - prefix added to all generated node descriptions. If not defined the modname will be used
-  - def.check_prefix - Additional prefix if not all textures should be processed
+### How to create a mod called "my_shapes"
 
+1. create the mod folder my_shapes/
 
-## Textures name convention
-modname_[addprefix_][variant_][name_][tiletype].ext
-  - [] means optional
-  - modname - to avoid overlapping all textures without modname in filename will be ignored
-  - addprefix - additional prefix for mods that contains other textures that should not be processed
-  - variant - determinate some nodes parameter: 
-    - Supported: brick, cobblestone, dirt, grass, ice, iron, sandstone, stone, item (=will be skipped)
-  - tiletype - defines the tile position
-    - Supported: top, bottom, down, right, left, back, inner, front, side, normal
-  - name - additional string makes the nodename unique. Note: if tieltype or variant is not valid, you find it as a part of the name
-  - ext - File extendion as supported by minetest
-
-
-## Advanced API
-customnode.register_variant(name, definition) - register a new nodes variant
-  - name - needs to be namespaced as "modname:pattern". The "pattern" will be checked against filename
-  - definition - if a string is provided the variant will be just linked against existing variant
-     - if a table is provided the table will be [b]merged[b] to the default template for register_node(). All attributes will be passed to register_node, except:
-        - tasks: A table of tasks should be executed for variant. Note the default definition contains already "default" taks that creates the node
-        - skip: a bolean value. If it is true, no nodes will be generated for this variant
-
-customnode.register_task(name, function) - register a new task, that can be used in customnode.register_variant. THe function will be called for each definition
-   - function(nodedef, generator) - nodedef is data prepared for register_node(), generator is the object with used additional internal data
-
-
-## Implemented tasks
-  - default - create the node
-  - stairs_slabs - generate stairs and slabs using stairs.register_stair_and_slab()
-
-## Implemented variants - for the definition look to the implementation at the end of init.lua
-  - customnode:default - the default one. Is used as template for all other variants. Is used for all nodes without valid variant
-  - customnode:item - skip is set
-  - customnode:dirt
-  - customnode:grass
-  - customnode:ice - with stairs_slabs
-  - customnode:stone - with stairs_slabs
-  - customnode:brick - copy of stone
-  - customnode:cobble - copy of stone
-  - customnode:stonebrick - copy of stone
-  - customnode:cobblestone - copy of stone
-  - customnode:sandstone - with stairs_slabs
-  - customnode:sand
-  - customnode:gravel
-  - customnode:snow
-  - customnode:tree
-  - customnode:wood - with stairs_slabs
-  - customnode:metal - with stairs_slabs
-  - customnode:steel - copy of metal
-  - customnode:glass
-
-## Extended example
+2. create mod.conf
 ```
-customnode.register_task("recipe", function(nodedef)
-	minetest.register_craft({
-		output = nodedef.name,
-		recipe = {
-			{"default:wood", ingredients[nodedef.name], "default:wood"},
-		}
-	})
-end)
+name = my_shapes
+```
 
-customnode.register_variant("mymod:wood", {
-	groups = {choppy = 2, wood = 1}
-	tasks = {"stairs_slabs", "recipe"},
+3. create depends.txt with mods contains some compatible blocks
+```
+customnode
+abriglass?
+pbj_pup?
+myroofs?
+```
+
+4. create init.lua
+```
+-- Introduce wooden carpets
+customnode.register_variant("glass", {
+	tasks = {"stairs:stairs_slabs"},
 })
 
-customnode.add_nodes_from_textures({
-	descr_prefix = "My crazy blocks",
+
+-- Enable carpets for all not classified (default) nodes
+customnode.register_variant("default", {
+	tasks = {"carpets:carpet"},
 })
+
+customnode.apply_variants_to_depnodes()
 ```
+
+This mod creates 23 stairs and 23 slabs usgin glass materials from abriglass and 15 carpets from not classified nodes in myroofs mod.
+
+## Advanced usage
+Of course the API allow more specific usage. See API.md file. But find the balance sometimes it is easier to use minetest.register_node instead of the framework.

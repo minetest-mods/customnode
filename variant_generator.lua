@@ -86,7 +86,7 @@ end
 -- Add a chaper to the variant
 function variant_class:add_task(taskname)
 	assert(customnode._tasks[taskname], "task not defined")
-	table.insert(self.tasks, customnode._tasks[taskname])
+	self.tasks[taskname] = customnode._tasks[taskname]
 end
 
 return variant_class
