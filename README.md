@@ -1,5 +1,7 @@
 # customnode - A minetest mod for easy nodes definitions in other mods
 
+Forum thread: https://forum.minetest.net/viewtopic.php?t=17375
+
 ## Decorative nodes by reading textures folder
 This mod provides the function customnode.get_nodelist_by_textures() that can be used in other mods to get additional mods in easy.
 The modder can focus on textures. The framework create the node definitions and some shaped nodes in addition matching node variant.
