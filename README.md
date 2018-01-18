@@ -100,4 +100,4 @@ customnode.apply_variants_to_depnodes()
 This mod creates 23 stairs and 23 slabs usgin glass materials from abriglass and 15 carpets from not classified nodes in myroofs mod.
 
 ## Advanced usage
-Of course the API allow more specific usage. See API.md file. But find the balance sometimes it is easier to use minetest.register_node instead of the framework.
+Of course the API allow more specific usage. See [API.md](https://github.com/bell07/minetest-customnode/blob/master/API.md) file. But find the balance sometimes it is easier to use minetest.register_node instead of the framework.
