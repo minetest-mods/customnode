@@ -8,10 +8,10 @@ end)
 ----------------------------------------------------
 -- task for stairs and slabs using stairs mod
 ----------------------------------------------------
-customnode.register_task("stairs:stairs_slabs", function(nodedef, generator)
+customnode.register_task("stairs:stairs_slabs", function(nodedef)
 	if minetest.global_exists("stairs") then
 		stairs.register_stair_and_slab(
-			generator.modname.."_"..generator:get_name(),
+			nodedef.name:gsub(':','_'),
 			nodedef.name,
 			table.copy(nodedef.groups),
 			table.copy(nodedef.tiles),
@@ -23,7 +23,7 @@ customnode.register_task("stairs:stairs_slabs", function(nodedef, generator)
 end)
 
 
-customnode.register_task("carpets:carpet", function(nodedef, generator)
+customnode.register_task("carpets:carpet", function(nodedef)
 	if minetest.global_exists("carpets") then
 		carpets.register(nodedef.name)
 	end

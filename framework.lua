@@ -55,7 +55,6 @@ end
 -- API Call - Get variant object
 ----------------------------------------------------
 function customnode.get_variant(name)
-print("get variant", name)
 	if name:match(":") then
 		return customnode._variants[name]
 	else
@@ -189,7 +188,7 @@ function customnode.add_nodes_from_textures(conf)
 		local nodedef = generator:get_nodedef()
 		if nodedef then
 			for _, task in ipairs(generator.variant.tasks) do
-				task(nodedef, generator)
+				task(nodedef)
 			end
 		end
 	end

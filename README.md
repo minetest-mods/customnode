@@ -115,7 +115,7 @@ customnode.register_task(name, function) - register a new task, that can be used
 
 ## Extended example
 ```
-customnode.register_task("recipe", function(nodedef, generator)
+customnode.register_task("recipe", function(nodedef)
 	minetest.register_craft({
 		output = nodedef.name,
 		recipe = {
