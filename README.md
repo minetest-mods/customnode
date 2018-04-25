@@ -83,7 +83,7 @@ myroofs?
 
 4. create init.lua
 ```
--- Introduce wooden carpets
+-- Introduce glass stairs and slabs
 customnode.register_variant("glass", {
 	tasks = {"stairs:stairs_slabs"},
 })
